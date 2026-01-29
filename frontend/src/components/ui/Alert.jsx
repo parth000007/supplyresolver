@@ -1,9 +1,9 @@
 const Alert = ({ children, variant = 'info', title, className = '' }) => {
   const variants = {
-    info: 'bg-blue-500/10 border-blue-500/30 text-blue-400',
-    success: 'bg-emerald-500/10 border-emerald-500/30 text-emerald-400',
-    warning: 'bg-amber-500/10 border-amber-500/30 text-amber-400',
-    error: 'bg-red-500/10 border-red-500/30 text-red-400',
+    info: 'bg-blue-600/10 border-blue-600/30 text-blue-400',
+    success: 'bg-emerald-600/10 border-emerald-600/30 text-emerald-400',
+    warning: 'bg-amber-600/10 border-amber-600/30 text-amber-400',
+    error: 'bg-red-600/10 border-red-600/30 text-red-400',
   };
 
   const icons = {
@@ -30,13 +30,7 @@ const Alert = ({ children, variant = 'info', title, className = '' }) => {
   };
 
   return (
-    <div
-      className={`
-        p-4 rounded-lg border flex gap-3
-        ${variants[variant]}
-        ${className}
-      `}
-    >
+    <div className={`p-4 rounded-lg border flex gap-3 ${variants[variant]} ${className}`}>
       <div className="flex-shrink-0">{icons[variant]}</div>
       <div className="flex-1">
         {title && <h4 className="font-medium mb-1">{title}</h4>}

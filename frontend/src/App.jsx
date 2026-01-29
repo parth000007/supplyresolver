@@ -10,7 +10,6 @@ function App() {
     <Routes>
       <Route path="/" element={<Layout />}>
         <Route index element={<Dashboard />} />
-        <Route path="dashboard" element={<Dashboard />} />
         <Route path="vendors" element={<Vendors />} />
         <Route path="batches" element={<Batches />} />
         <Route path="upload" element={<Upload />} />

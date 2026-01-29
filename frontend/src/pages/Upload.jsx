@@ -4,7 +4,6 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
-import Alert from '../components/ui/Alert';
 
 function Upload() {
   const [documents] = useState([
@@ -20,8 +19,8 @@ function Upload() {
   const [title, setTitle] = useState('');
   const [batchId, setBatchId] = useState('');
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
+  const [error, setError] = useState('');
   const fileInputRef = useRef(null);
 
   const handleSubmit = (e) => {
@@ -35,7 +34,6 @@ function Upload() {
     setError('');
     setSuccess('');
 
-    // Simulate upload
     setTimeout(() => {
       setSuccess('Document uploaded successfully!');
       setFile(null);
@@ -45,6 +43,8 @@ function Upload() {
         fileInputRef.current.value = '';
       }
       setSubmitting(false);
+      
+      setTimeout(() => setSuccess(''), 3000);
     }, 1000);
   };
 
@@ -60,15 +60,8 @@ function Upload() {
     }
   };
 
-  const dropAreaActive = (e) => {
-    e.preventDefault();
-    e.stopPropagation();
-  };
-
   const handleDrop = (e) => {
     e.preventDefault();
-    e.stopPropagation();
-    
     const droppedFile = e.dataTransfer.files[0];
     if (droppedFile) {
       if (droppedFile.type !== 'application/pdf') {
@@ -85,7 +78,7 @@ function Upload() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Document Upload</h1>
+          <h1 className="text-2xl font-bold text-white">Document Upload</h1>
           <p className="text-slate-500 mt-1">Upload certificates and documents</p>
         </div>
         <Badge variant="primary" size="lg">{documents.length} Documents</Badge>
@@ -94,28 +87,19 @@ function Upload() {
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Upload Form */}
-        <Card padding="lg" className="lg:col-span-1">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-100">Upload Document</h2>
-              <p className="text-slate-500 text-sm">Add a new certificate</p>
-            </div>
-          </div>
+        <Card className="p-6 lg:col-span-1">
+          <h2 className="text-lg font-semibold text-white mb-4">Upload Document</h2>
 
           {error && (
-            <Alert variant="error" className="mb-4">
+            <div className="mb-4 p-3 rounded-lg bg-red-600/20 border border-red-600/30 text-red-400 text-sm">
               {error}
-            </Alert>
+            </div>
           )}
+          
           {success && (
-            <Alert variant="success" className="mb-4">
+            <div className="mb-4 p-3 rounded-lg bg-emerald-600/20 border border-emerald-600/30 text-emerald-400 text-sm">
               {success}
-            </Alert>
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -127,7 +111,7 @@ function Upload() {
                 value={batchId}
                 onChange={(e) => setBatchId(e.target.value)}
                 required
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 border border-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                className="w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a batch</option>
                 {batches.map((b) => (
@@ -152,13 +136,12 @@ function Upload() {
               </label>
               <div
                 className={`
-                  relative border-2 border-dashed rounded-lg p-6
-                  transition-all duration-200 cursor-pointer
-                  ${file ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-600 hover:border-slate-500 hover:bg-slate-800/50'}
+                  border-2 border-dashed rounded-lg p-6 cursor-pointer
+                  transition-all
+                  ${file ? 'border-emerald-500 bg-emerald-500/5' : 'border-slate-600 hover:border-slate-500 hover:bg-slate-800'}
                 `}
                 onClick={() => fileInputRef.current?.click()}
-                onDragOver={dropAreaActive}
-                onDragLeave={dropAreaActive}
+                onDragOver={(e) => e.preventDefault()}
                 onDrop={handleDrop}
               >
                 <input
@@ -176,8 +159,8 @@ function Upload() {
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                       </svg>
                     </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-medium text-slate-200 truncate">{file.name}</p>
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium text-white truncate">{file.name}</p>
                       <p className="text-xs text-slate-500">{(file.size / 1024).toFixed(1)} KB</p>
                     </div>
                     <button
@@ -187,7 +170,7 @@ function Upload() {
                         setFile(null);
                         if (fileInputRef.current) fileInputRef.current.value = '';
                       }}
-                      className="ml-auto p-1 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-700"
+                      className="p-1 rounded-lg text-slate-500 hover:text-slate-300 hover:bg-slate-700"
                     >
                       <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
@@ -215,8 +198,7 @@ function Upload() {
               variant="primary"
               loading={submitting}
               disabled={!file || !batchId || batches.length === 0}
-              className="w-full mt-2"
-              icon={UploadIcon}
+              className="w-full btn-lift"
             >
               {submitting ? 'Uploading...' : 'Upload Document'}
             </Button>
@@ -224,34 +206,19 @@ function Upload() {
         </Card>
 
         {/* Document List */}
-        <Card padding="lg" className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <h2 className="text-lg font-semibold text-slate-100">All Documents</h2>
-            </div>
-          </div>
+        <Card className="p-6 lg:col-span-2">
+          <h2 className="text-lg font-semibold text-white mb-4">All Documents</h2>
 
           {documents.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
               <p className="text-slate-500">No documents uploaded yet</p>
-              <p className="text-slate-600 text-sm mt-1">Upload your first document using the form</p>
             </div>
           ) : (
             <Table headers={['Title', 'Type', 'Batch', 'Hash', 'Created']}>
               {documents.map((d) => {
                 const batch = batches.find((b) => b.id === d.batch_id);
                 return (
-                  <Table.Row key={d.id} className="group">
+                  <Table.Row key={d.id} className="table-row-hover">
                     <Table.Cell>
                       <div className="flex items-center gap-2">
                         <div className="w-8 h-8 rounded-lg bg-red-500/20 flex items-center justify-center flex-shrink-0">
@@ -259,15 +226,13 @@ function Upload() {
                             <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
                           </svg>
                         </div>
-                        <span className="font-medium text-slate-200 truncate max-w-[200px]">{d.title}</span>
+                        <span className="font-medium text-white truncate max-w-[200px]">{d.title}</span>
                       </div>
                     </Table.Cell>
                     <Table.Cell>
                       <Badge variant="info">{d.document_type}</Badge>
                     </Table.Cell>
-                    <Table.Cell>
-                      <span className="text-slate-400">{batch?.batch_number || '-'}</span>
-                    </Table.Cell>
+                    <Table.Cell className="text-slate-400">{batch?.batch_number || '-'}</Table.Cell>
                     <Table.Cell>
                       <code className="text-xs font-mono text-slate-500 bg-slate-800 px-2 py-1 rounded">
                         {d.file_hash ? `${d.file_hash.substring(0, 16)}...` : '-'}
@@ -287,10 +252,5 @@ function Upload() {
   );
 }
 
-const UploadIcon = ({ className }) => (
-  <svg className={className} fill="none" viewBox="0 0 24 24" stroke="currentColor">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-  </svg>
-);
-
 export default Upload;
+

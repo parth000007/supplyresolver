@@ -4,7 +4,6 @@ import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
-import Alert from '../components/ui/Alert';
 
 function Batches() {
   const [batches, setBatches] = useState([
@@ -23,20 +22,15 @@ function Batches() {
     product_name: '',
     quantity: '',
     unit_price: '',
-    total_amount: '',
     status: 'pending',
   });
   const [submitting, setSubmitting] = useState(false);
-  const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
 
   const handleSubmit = (e) => {
     e.preventDefault();
     setSubmitting(true);
-    setError('');
-    setSuccess('');
 
-    // Simulate API call
     setTimeout(() => {
       const newBatch = {
         id: batches.length + 1,
@@ -55,11 +49,12 @@ function Batches() {
         product_name: '',
         quantity: '',
         unit_price: '',
-        total_amount: '',
         status: 'pending',
       });
       setSuccess('Batch created successfully!');
       setSubmitting(false);
+      
+      setTimeout(() => setSuccess(''), 3000);
     }, 500);
   };
 
@@ -85,7 +80,7 @@ function Batches() {
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-100">Batches</h1>
+          <h1 className="text-2xl font-bold text-white">Batches</h1>
           <p className="text-slate-500 mt-1">Track and manage your shipments</p>
         </div>
         <Badge variant="primary" size="lg">{batches.length} Batches</Badge>
@@ -94,28 +89,13 @@ function Batches() {
       {/* Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Create Batch Form */}
-        <Card padding="lg" className="lg:col-span-1">
-          <div className="flex items-center gap-3 mb-6">
-            <div className="w-10 h-10 rounded-lg bg-blue-500/20 flex items-center justify-center">
-              <svg className="w-5 h-5 text-blue-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-              </svg>
-            </div>
-            <div>
-              <h2 className="text-lg font-semibold text-slate-100">Create Batch</h2>
-              <p className="text-slate-500 text-sm">Add a new shipment batch</p>
-            </div>
-          </div>
+        <Card className="p-6 lg:col-span-1">
+          <h2 className="text-lg font-semibold text-white mb-4">Create Batch</h2>
 
-          {error && (
-            <Alert variant="error" className="mb-4">
-              {error}
-            </Alert>
-          )}
           {success && (
-            <Alert variant="success" className="mb-4">
+            <div className="mb-4 p-3 rounded-lg bg-emerald-600/20 border border-emerald-600/30 text-emerald-400 text-sm">
               {success}
-            </Alert>
+            </div>
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -135,7 +115,7 @@ function Batches() {
                 value={form.vendor_id}
                 onChange={(e) => setForm({ ...form, vendor_id: e.target.value })}
                 required
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 border border-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                className="w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Select a vendor</option>
                 {vendors.map((v) => (
@@ -180,7 +160,6 @@ function Batches() {
               label="Total Amount ($)"
               value={calculateTotal()}
               readOnly
-              containerClassName="bg-slate-800/50"
             />
 
             <div className="space-y-1.5">
@@ -188,7 +167,7 @@ function Batches() {
               <select
                 value={form.status}
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
-                className="w-full px-4 py-2.5 rounded-lg bg-slate-700/50 border border-slate-600 text-slate-100 focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500"
+                className="w-full px-4 py-2.5 rounded-lg bg-slate-700 border border-slate-600 text-white focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="pending">Pending</option>
                 <option value="in_transit">In Transit</option>
@@ -203,7 +182,7 @@ function Batches() {
               variant="primary"
               loading={submitting}
               disabled={vendors.length === 0}
-              className="w-full mt-2"
+              className="w-full btn-lift"
             >
               {submitting ? 'Creating...' : 'Create Batch'}
             </Button>
@@ -211,41 +190,24 @@ function Batches() {
         </Card>
 
         {/* Batch List */}
-        <Card padding="lg" className="lg:col-span-2">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-lg bg-emerald-500/20 flex items-center justify-center">
-                <svg className="w-5 h-5 text-emerald-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
-              <h2 className="text-lg font-semibold text-slate-100">All Batches</h2>
-            </div>
-          </div>
+        <Card className="p-6 lg:col-span-2">
+          <h2 className="text-lg font-semibold text-white mb-4">All Batches</h2>
 
           {batches.length === 0 ? (
             <div className="text-center py-12">
-              <div className="w-16 h-16 rounded-full bg-slate-800 flex items-center justify-center mx-auto mb-4">
-                <svg className="w-8 h-8 text-slate-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-                </svg>
-              </div>
               <p className="text-slate-500">No batches created yet</p>
-              <p className="text-slate-600 text-sm mt-1">Create your first batch using the form</p>
             </div>
           ) : (
             <Table headers={['Batch #', 'Product', 'Vendor', 'Qty', 'Total', 'Status']}>
               {batches.map((b) => {
                 const vendor = vendors.find((v) => v.id === b.vendor_id);
                 return (
-                  <Table.Row key={b.id} className="group">
+                  <Table.Row key={b.id} className="table-row-hover">
                     <Table.Cell>
                       <span className="font-mono text-sm text-slate-300">{b.batch_number}</span>
                     </Table.Cell>
-                    <Table.Cell className="text-slate-200">{b.product_name}</Table.Cell>
-                    <Table.Cell>
-                      <span className="text-slate-400">{vendor?.name || '-'}</span>
-                    </Table.Cell>
+                    <Table.Cell className="text-white">{b.product_name}</Table.Cell>
+                    <Table.Cell className="text-slate-400">{vendor?.name || '-'}</Table.Cell>
                     <Table.Cell className="text-slate-400">{b.quantity}</Table.Cell>
                     <Table.Cell>
                       <span className="font-medium text-emerald-400">${b.total_amount}</span>
