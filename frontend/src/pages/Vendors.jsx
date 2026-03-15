@@ -1,39 +1,45 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
+import { vendorApi } from '../api/axios';
 
 function Vendors() {
-  const [vendors, setVendors] = useState([
-    { id: 1, name: 'Acme Corp', email: 'contact@acme.com', phone: '+1 234 567 8900', is_active: true },
-    { id: 2, name: 'Global Supplies', email: 'info@globalsupplies.com', phone: '+1 234 567 8901', is_active: true },
-    { id: 3, name: 'Tech Parts Inc', email: 'sales@techparts.com', phone: '+1 234 567 8902', is_active: false },
-  ]);
+  const [vendors, setVendors] = useState([]);
   const [form, setForm] = useState({ name: '', email: '', phone: '', address: '' });
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchVendors();
+  }, []);
+
+  const fetchVendors = async () => {
+    try {
+      const res = await vendorApi.getAll();
+      setVendors(res.data);
+    } catch (err) {
+      console.error('Failed to fetch vendors:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
-    setTimeout(() => {
-      const newVendor = {
-        id: vendors.length + 1,
-        name: form.name,
-        email: form.email,
-        phone: form.phone,
-        is_active: true,
-      };
-      setVendors([...vendors, newVendor]);
+    try {
+      await vendorApi.create(form);
       setForm({ name: '', email: '', phone: '', address: '' });
       setSuccess('Vendor created successfully!');
-      setSubmitting(false);
-      
+      await fetchVendors();
       setTimeout(() => setSuccess(''), 3000);
-    }, 500);
+    } catch (err) {
+      console.error('Failed to create vendor:', err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const getStatusVariant = (isActive) => {

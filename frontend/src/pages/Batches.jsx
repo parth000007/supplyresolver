@@ -1,21 +1,14 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
+import { vendorApi, batchApi } from '../api/axios';
 
 function Batches() {
-  const [batches, setBatches] = useState([
-    { id: 1, batch_number: 'BATCH-001', vendor_id: 1, product_name: 'Widget A', quantity: 500, unit_price: 9.99, total_amount: 4995, status: 'completed' },
-    { id: 2, batch_number: 'BATCH-002', vendor_id: 2, product_name: 'Widget B', quantity: 1200, unit_price: 14.99, total_amount: 17988, status: 'pending' },
-    { id: 3, batch_number: 'BATCH-003', vendor_id: 1, product_name: 'Component X', quantity: 300, unit_price: 24.99, total_amount: 7497, status: 'approved' },
-  ]);
-  const [vendors] = useState([
-    { id: 1, name: 'Acme Corp' },
-    { id: 2, name: 'Global Supplies' },
-    { id: 3, name: 'Tech Parts Inc' },
-  ]);
+  const [batches, setBatches] = useState([]);
+  const [vendors, setVendors] = useState([]);
   const [form, setForm] = useState({
     batch_number: '',
     vendor_id: '',
@@ -27,22 +20,38 @@ function Batches() {
   const [submitting, setSubmitting] = useState(false);
   const [success, setSuccess] = useState('');
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [batchesRes, vendorsRes] = await Promise.all([
+        batchApi.getAll(),
+        vendorApi.getAll(),
+      ]);
+      setBatches(batchesRes.data);
+      setVendors(vendorsRes.data);
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     setSubmitting(true);
 
-    setTimeout(() => {
-      const newBatch = {
-        id: batches.length + 1,
+    try {
+      const total = parseFloat(form.quantity) * parseFloat(form.unit_price);
+      await batchApi.create({
         batch_number: form.batch_number,
         vendor_id: parseInt(form.vendor_id),
         product_name: form.product_name,
         quantity: parseInt(form.quantity),
         unit_price: parseFloat(form.unit_price),
-        total_amount: parseFloat(form.quantity) * parseFloat(form.unit_price),
+        total_amount: total,
         status: form.status,
-      };
-      setBatches([...batches, newBatch]);
+      });
       setForm({
         batch_number: '',
         vendor_id: '',
@@ -52,10 +61,13 @@ function Batches() {
         status: 'pending',
       });
       setSuccess('Batch created successfully!');
-      setSubmitting(false);
-      
+      await fetchData();
       setTimeout(() => setSuccess(''), 3000);
-    }, 500);
+    } catch (err) {
+      console.error('Failed to create batch:', err);
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const calculateTotal = () => {

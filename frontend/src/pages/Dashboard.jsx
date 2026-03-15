@@ -1,25 +1,35 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
 import Loading from '../components/ui/Loading';
+import { vendorApi, batchApi, documentApi } from '../api/axios';
 
 function Dashboard() {
-  const [vendors] = useState([
-    { id: 1, name: 'Acme Corp', email: 'contact@acme.com', is_active: true },
-    { id: 2, name: 'Global Supplies', email: 'info@globalsupplies.com', is_active: true },
-    { id: 3, name: 'Tech Parts Inc', email: 'sales@techparts.com', is_active: false },
-  ]);
-  const [batches] = useState([
-    { id: 1, batch_number: 'BATCH-001', product_name: 'Widget A', quantity: 500, status: 'completed' },
-    { id: 2, batch_number: 'BATCH-002', product_name: 'Widget B', quantity: 1200, status: 'pending' },
-    { id: 3, batch_number: 'BATCH-003', product_name: 'Component X', quantity: 300, status: 'approved' },
-  ]);
-  const [documents] = useState([
-    { id: 1, title: 'Quality Certificate', document_type: 'Certificate', batch_id: 1, created_at: '2024-01-15' },
-    { id: 2, title: 'Invoice #1234', document_type: 'Invoice', batch_id: 2, created_at: '2024-01-16' },
-  ]);
-  const [loading] = useState(false);
+  const [vendors, setVendors] = useState([]);
+  const [batches, setBatches] = useState([]);
+  const [documents, setDocuments] = useState([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        const [vendorsRes, batchesRes, documentsRes] = await Promise.all([
+          vendorApi.getAll(),
+          batchApi.getAll(),
+          documentApi.getAll(),
+        ]);
+        setVendors(vendorsRes.data);
+        setBatches(batchesRes.data);
+        setDocuments(documentsRes.data);
+      } catch (err) {
+        console.error('Failed to fetch dashboard data:', err);
+      } finally {
+        setLoading(false);
+      }
+    };
+    fetchData();
+  }, []);
 
   const getStatusVariant = (status) => {
     const variants = {

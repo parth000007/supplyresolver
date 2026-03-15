@@ -1,20 +1,14 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import Input from '../components/ui/Input';
 import Badge from '../components/ui/Badge';
 import Table from '../components/ui/Table';
+import { batchApi, documentApi } from '../api/axios';
 
 function Upload() {
-  const [documents] = useState([
-    { id: 1, title: 'Quality Certificate', document_type: 'Certificate', batch_id: 1, file_hash: 'a1b2c3d4e5f6', created_at: '2024-01-15' },
-    { id: 2, title: 'Invoice #1234', document_type: 'Invoice', batch_id: 2, file_hash: 'f6e5d4c3b2a1', created_at: '2024-01-16' },
-  ]);
-  const [batches] = useState([
-    { id: 1, batch_number: 'BATCH-001', product_name: 'Widget A' },
-    { id: 2, batch_number: 'BATCH-002', product_name: 'Widget B' },
-    { id: 3, batch_number: 'BATCH-003', product_name: 'Component X' },
-  ]);
+  const [documents, setDocuments] = useState([]);
+  const [batches, setBatches] = useState([]);
   const [file, setFile] = useState(null);
   const [title, setTitle] = useState('');
   const [batchId, setBatchId] = useState('');
@@ -23,7 +17,24 @@ function Upload() {
   const [error, setError] = useState('');
   const fileInputRef = useRef(null);
 
-  const handleSubmit = (e) => {
+  useEffect(() => {
+    fetchData();
+  }, []);
+
+  const fetchData = async () => {
+    try {
+      const [docsRes, batchesRes] = await Promise.all([
+        documentApi.getAll(),
+        batchApi.getAll(),
+      ]);
+      setDocuments(docsRes.data);
+      setBatches(batchesRes.data);
+    } catch (err) {
+      console.error('Failed to fetch data:', err);
+    }
+  };
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
     if (!file || !batchId) {
       setError('Please select a file and batch');
@@ -34,7 +45,13 @@ function Upload() {
     setError('');
     setSuccess('');
 
-    setTimeout(() => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      formData.append('batch_id', batchId);
+      formData.append('title', title || file.name);
+      formData.append('document_type', 'certificate');
+      await documentApi.upload(formData);
       setSuccess('Document uploaded successfully!');
       setFile(null);
       setTitle('');
@@ -42,10 +59,14 @@ function Upload() {
       if (fileInputRef.current) {
         fileInputRef.current.value = '';
       }
-      setSubmitting(false);
-      
+      await fetchData();
       setTimeout(() => setSuccess(''), 3000);
-    }, 1000);
+    } catch (err) {
+      console.error('Failed to upload document:', err);
+      setError(err.response?.data?.detail || 'Failed to upload document');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   const handleFileChange = (e) => {
